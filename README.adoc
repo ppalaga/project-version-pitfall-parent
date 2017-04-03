@@ -1,0 +1,35 @@
+= `${project.version}` Pitfall
+
+\... or why using something such straightforward as `${project.version}` may sometimes not be a good idea.
+
+[source,sh]
+----
+cd ~/scratch
+git clone https://github.com/ppalaga/project-version-pitfall-parent.git
+cd project-version-pitfall-parent
+mvn clean install # works
+
+cd ..
+git clone https://github.com/ppalaga/project-version-pitfall-child.git
+cd project-version-pitfall-child
+mvn clean install # works
+----
+
+
+And now go to link:pom.xml#L13[pom.xml] and uncomment
+`<version.pitfall-parent-pom>${project.version}</version.pitfall-parent-pom>`
+and comment out `<version.pitfall-parent-pom>0.0.1-SNAPSHOT</version.pitfall-parent-pom>`.
+Then build both projects again
+
+[source,sh]
+----
+cd ../project-version-pitfall-parent
+mvn clean install # still works
+
+cd ../project-version-pitfall-child
+mvn clean install # fails - Q.E.D.
+----
+
+The last `mvn install` invocation proves that `${project.version}` in `pitfall-parent-pom` is resolved
+as `2.200.1-SNAPSHOT` - i.e. the version of `pitfall-child` rather than the version `0.0.1-SNAPSHOT`
+of `pitfall-parent-pom`.
